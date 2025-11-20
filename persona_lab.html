@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nadaum - 챌린지</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* Filters Section */
+        .filters-section {
+            background-color: white;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-chip {
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .filter-chip.active {
+            background-color: #f5576c;
+            color: white;
+        }
+
+        .sort-section {
+            display: flex;
+            gap: 8px;
+        }
+
+        .sort-btn {
+            padding: 6px 12px;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sort-btn.active {
+            background-color: #333;
+            color: white;
+            border-color: #333;
+        }
+
+        /* Tab Section */
+        .tab-section {
+            display: flex;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 89px;
+            z-index: 9;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 16px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #999;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #f5576c;
+            border-bottom-color: #f5576c;
+        }
+
+        /* Experiment List */
+        .experiment-list {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .experiment-card {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .experiment-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .experiment-card.completed {
+            border-color: #4CAF50;
+            background-color: #f1f8f4;
+        }
+
+        .experiment-card.hidden {
+            display: none;
+        }
+
+        .experiment-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .experiment-icon {
+            font-size: 48px;
+        }
+
+        .experiment-info {
+            flex: 1;
+        }
+
+        .experiment-category {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: #fff3e0;
+            color: #f57c00;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .experiment-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .experiment-duration {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .success-badge {
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .experiment-description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .experiment-routines {
+            margin-bottom: 16px;
+        }
+
+        .routines-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .routine-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            color: #666;
+        }
+
+        .experiment-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .experiment-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .experiment-btn.primary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .experiment-btn.secondary {
+            background-color: white;
+            color: #f5576c;
+            border: 2px solid #f5576c;
+        }
+
+        .experiment-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* Onboarding Modal */
+        .onboarding-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .onboarding-modal.active {
+            display: flex;
+        }
+
+        .onboarding-content {
+            background-color: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .onboarding-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .onboarding-progress {
+            height: 4px;
+            background-color: #f0f0f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .onboarding-progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transition: width 0.3s;
+        }
+
+        .onboarding-step {
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .onboarding-image {
+            font-size: 80px;
+            margin-bottom: 24px;
+        }
+
+        .onboarding-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .onboarding-description {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .onboarding-actions {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .onboarding-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+
+        .onboarding-btn:hover {
+            opacity: 0.9;
+        }
+
+        .onboarding-skip {
+            width: 100%;
+            padding: 12px;
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+            margin-top: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: #333;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-title">⚗️ 챌린지</div>
+                <div class="header-subtitle">되고 싶은 나를 실험해보세요</div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <div class="filters">
+                <button class="filter-chip active" onclick="filterCategory('all')">전체</button>
+                <button class="filter-chip" onclick="filterCategory('exercise')">🏃 운동</button>
+                <button class="filter-chip" onclick="filterCategory('nutrition')">🥗 식단</button>
+                <button class="filter-chip" onclick="filterCategory('body')">💆 바디케어</button>
+                <button class="filter-chip" onclick="filterCategory('recovery')">😴 회복</button>
+                <button class="filter-chip" onclick="filterCategory('habit')">✨ 습관</button>
+            </div>
+            <div class="sort-section">
+                <button class="sort-btn active" onclick="sortBy('popular')">인기순</button>
+                <button class="sort-btn" onclick="sortBy('completed')">완료율 높은순</button>
+            </div>
+        </div>
+
+        <!-- Tab Section -->
+        <div class="tab-section">
+            <button class="tab-btn active" onclick="switchTab(0)">추천 실험</button>
+            <button class="tab-btn" onclick="switchTab(1)">진행중</button>
+            <button class="tab-btn" onclick="switchTab(2)">완료</button>
+        </div>
+
+        <!-- Experiment List -->
+        <div class="experiment-list" id="experimentList">
+            <!-- Experiment Card 1 -->
+            <div class="experiment-card" data-category="habit" data-popularity="2341" data-completion="68">
+                <div class="experiment-header">
+                    <div class="experiment-icon">🌅</div>
+                    <div class="experiment-info">
+                        <span class="experiment-category">습관 개선</span>
+                        <div class="experiment-title">아침형 인간으로 살아보기</div>
+                        <div class="experiment-duration">추천 기간: 7일</div>
+                    </div>
+                </div>
+                
+                <div class="experiment-description">
+                    일찍 일어나는 습관을 만들어보세요. 아침 시간을 활용하면 하루가 더 생산적으로 변할 수 있어요.
+                </div>
+
+                <div class="experiment-routines">
+                    <div class="routines-title">포함된 루틴 (5개)</div>
+                    <span class="routine-tag">06:00 기상</span>
+                    <span class="routine-tag">아침 스트레칭</span>
+                    <span class="routine-tag">건강한 아침 식사</span>
+                    <span class="routine-tag">아침 산책</span>
+                    <span class="routine-tag">22:00 취침</span>
+                </div>
+
+                <div class="experiment-stats">
+                    <div class="stat-item">👥 2,341명 도전중</div>
+                    <div class="stat-item">✅ 68% 완료율</div>
+                </div>
+
+                <button class="experiment-btn primary" onclick="startExperiment('아침형 인간', 'morning')">실험 시작하기</button>
+            </div>
+
+            <!-- Experiment Card 2 -->
+            <div class="experiment-card" data-category="nutrition" data-popularity="1892" data-completion="54">
+                <div class="experiment-header">
+                    <div class="experiment-icon">🌱</div>
+                    <div class="experiment-info">
+                        <span class="experiment-category">영양섭취</span>
+                        <div class="experiment-title">비건으로 살아보기</div>
+                        <div class="experiment-duration">추천 기간: 7일</div>
+                    </div>
+                </div>
+                
+                <div class="experiment-description">
+                    일주일 동안 식물성 식단만으로 생활해보세요. 건강과 환경을 생각하는 라이프스타일을 경험할 수 있어요.
+                </div>
+
+                <div class="experiment-routines">
+                    <div class="routines-title">포함된 루틴 (4개)</div>
+                    <span class="routine-tag">식물성 아침 식사</span>
+                    <span class="routine-tag">식물성 점심 식사</span>
+                    <span class="routine-tag">식물성 저녁 식사</span>
+                    <span class="routine-tag">영양제 섭취</span>
+                </div>
+
+                <div class="experiment-stats">
+                    <div class="stat-item">👥 1,892명 도전중</div>
+                    <div class="stat-item">✅ 54% 완료율</div>
+                </div>
+
+                <button class="experiment-btn primary" onclick="startExperiment('비건', 'vegan')">실험 시작하기</button>
+            </div>
+
+            <!-- Experiment Card 3 -->
+            <div class="experiment-card" data-category="habit" data-popularity="3127" data-completion="72">
+                <div class="experiment-header">
+                    <div class="experiment-icon">📵</div>
+                    <div class="experiment-info">
+                        <span class="experiment-category">습관 개선</span>
+                        <div class="experiment-title">디지털 디톡스 실천하기</div>
+                        <div class="experiment-duration">추천 기간: 3일</div>
+                    </div>
+                </div>
+                
+                <div class="experiment-description">
+                    저녁 시간 스마트폰 사용을 줄이고 아날로그 활동을 늘려보세요. 수면의 질이 개선되고 집중력이 높아질 수 있어요.
+                </div>
+
+                <div class="experiment-routines">
+                    <div class="routines-title">포함된 루틴 (3개)</div>
+                    <span class="routine-tag">20:00 이후 스마트폰 사용 제한</span>
+                    <span class="routine-tag">독서 30분</span>
+                    <span class="routine-tag">일기 쓰기</span>
+                </div>
+
+                <div class="experiment-stats">
+                    <div class="stat-item">👥 3,127명 도전중</div>
+                    <div class="stat-item">✅ 72% 완료율</div>
+                </div>
+
+                <button class="experiment-btn primary" onclick="startExperiment('디지털 디톡스', 'digital-detox')">실험 시작하기</button>
+            </div>
+
+            <!-- Experiment Card 4 -->
+            <div class="experiment-card" data-category="exercise" data-popularity="4567" data-completion="61">
+                <div class="experiment-header">
+                    <div class="experiment-icon">💪</div>
+                    <div class="experiment-info">
+                        <span class="experiment-category">운동</span>
+                        <div class="experiment-title">매일 운동하는 사람 되기</div>
+                        <div class="experiment-duration">추천 기간: 14일</div>
+                    </div>
+                </div>
+                
+                <div class="experiment-description">
+                    2주 동안 매일 최소 30분의 운동을 실천해보세요. 꾸준한 운동이 습관으로 자리잡을 수 있어요.
+                </div>
+
+                <div class="experiment-routines">
+                    <div class="routines-title">포함된 루틴 (3개)</div>
+                    <span class="routine-tag">아침 러닝 30분</span>
+                    <span class="routine-tag">근력 운동 20분</span>
+                    <span class="routine-tag">저녁 스트레칭</span>
+                </div>
+
+                <div class="experiment-stats">
+                    <div class="stat-item">👥 4,567명 도전중</div>
+                    <div class="stat-item">✅ 61% 완료율</div>
+                </div>
+
+                <button class="experiment-btn primary" onclick="startExperiment('매일 운동', 'daily-exercise')">실험 시작하기</button>
+            </div>
+
+            <!-- Experiment Card 5 -->
+            <div class="experiment-card" data-category="recovery" data-popularity="2893" data-completion="75">
+                <div class="experiment-header">
+                    <div class="experiment-icon">🧘</div>
+                    <div class="experiment-info">
+                        <span class="experiment-category">회복/컨디셔닝</span>
+                        <div class="experiment-title">수면 최적화 프로젝트</div>
+                        <div class="experiment-duration">추천 기간: 7일</div>
+                    </div>
+                </div>
+                
+                <div class="experiment-description">
+                    규칙적인 수면 패턴을 만들어 수면의 질을 개선해보세요. 피로 회복과 컨디션 관리에 큰 도움이 됩니다.
+                </div>
+
+                <div class="experiment-routines">
+                    <div class="routines-title">포함된 루틴 (5개)</div>
+                    <span class="routine-tag">22:30 취침 준비</span>
+                    <span class="routine-tag">명상 10분</span>
+                    <span class="routine-tag">스마트폰 끄기</span>
+                    <span class="routine-tag">07:00 기상</span>
+                    <span class="routine-tag">아침 햇빛 쬐기</span>
+                </div>
+
+                <div class="experiment-stats">
+                    <div class="stat-item">👥 2,893명 도전중</div>
+                    <div class="stat-item">✅ 75% 완료율</div>
+                </div>
+
+                <button class="experiment-btn primary" onclick="startExperiment('수면 최적화', 'sleep')">실험 시작하기</button>
+            </div>
+        </div>
+
+        <!-- Onboarding Modal -->
+        <div class="onboarding-modal" id="onboardingModal">
+            <div class="onboarding-content">
+                <div class="onboarding-header">
+                    <button class="close-btn" onclick="closeOnboarding()">×</button>
+                    <div class="onboarding-progress">
+                        <div class="onboarding-progress-fill" id="onboardingProgress" style="width: 33%"></div>
+                    </div>
+                </div>
+
+                <div class="onboarding-step" id="onboardingStep">
+                    <div class="onboarding-image">🌅</div>
+                    <h2 class="onboarding-title">아침형 인간의 장점</h2>
+                    <p class="onboarding-description">
+                        규칙적인 기상 시간은 생체 리듬을 안정시키고, 하루를 더 생산적으로 시작할 수 있게 도와줍니다.
+                    </p>
+                </div>
+
+                <div class="onboarding-actions">
+                    <button class="onboarding-btn" onclick="nextOnboardingStep()">다음</button>
+                    <button class="onboarding-skip" onclick="skipOnboarding()">건너뛰기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a href="feed.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span>홈</span>
+            </a>
+            <a href="routine.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span>루틴관리</span>
+            </a>
+            <a href="persona-lab.html" class="nav-item active">
+                <span class="nav-icon">⚗️</span>
+                <span>실험실</span>
+            </a>
+            <a href="my.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span>마이</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 실험별 온보딩 데이터
+        const onboardingData = {
+            'morning': [
+                {
+                    icon: '🌅',
+                    title: '아침형 인간의 장점',
+                    description: '규칙적인 기상 시간은 생체 리듬을 안정시키고, 하루를 더 생산적으로 시작할 수 있게 도와줍니다.'
+                },
+                {
+                    icon: '💪',
+                    title: '건강한 신체',
+                    description: '아침 운동은 신진대사를 촉진하고, 하루 종일 에너지 넘치는 상태를 유지할 수 있게 합니다.'
+                },
+                {
+                    icon: '🧠',
+                    title: '맑은 정신',
+                    description: '아침 시간은 집중력이 가장 높은 시간대입니다. 중요한 일을 아침에 처리하면 효율이 극대화됩니다.'
+                }
+            ],
+            'vegan': [
+                {
+                    icon: '🌱',
+                    title: '건강한 선택',
+                    description: '식물성 식단은 콜레스테롤을 낮추고 심혈관 건강을 개선하는데 도움이 됩니다.'
+                },
+                {
+                    icon: '🌍',
+                    title: '환경 보호',
+                    description: '비건 식단은 탄소 발자국을 줄이고 지속 가능한 미래를 만드는데 기여합니다.'
+                },
+                {
+                    icon: '✨',
+                    title: '새로운 발견',
+                    description: '다양한 채소와 과일을 통해 새로운 맛과 요리법을 발견할 수 있어요.'
+                }
+            ],
+            'digital-detox': [
+                {
+                    icon: '📵',
+                    title: '디지털 과부하 해소',
+                    description: '스마트폰 과다 사용은 수면의 질을 떨어뜨리고 집중력을 저하시킵니다.'
+                },
+                {
+                    icon: '😴',
+                    title: '수면의 질 개선',
+                    description: '저녁 시간 블루라이트 차단으로 멜라토닌 생성이 정상화되어 깊은 수면을 취할 수 있어요.'
+                },
+                {
+                    icon: '🧘',
+                    title: '마음의 평화',
+                    description: '디지털 디톡스는 스트레스를 줄이고 현재에 집중할 수 있게 도와줍니다.'
+                }
+            ],
+            'daily-exercise': [
+                {
+                    icon: '💪',
+                    title: '체력 향상',
+                    description: '매일 30분의 운동으로 심폐지구력과 근력이 눈에 띄게 향상됩니다.'
+                },
+                {
+                    icon: '😊',
+                    title: '정신 건강',
+                    description: '운동은 엔도르핀을 분비시켜 우울감을 줄이고 기분을 좋게 만듭니다.'
+                },
+                {
+                    icon: '🎯',
+                    title: '습관의 힘',
+                    description: '2주만 꾸준히 하면 운동이 자연스러운 일상의 일부가 됩니다.'
+                }
+            ],
+            'sleep': [
+                {
+                    icon: '🧘',
+                    title: '규칙적인 수면',
+                    description: '일정한 시간에 자고 일어나는 것이 수면의 질을 높이는 가장 중요한 요소입니다.'
+                },
+                {
+                    icon: '⚡',
+                    title: '에너지 회복',
+                    description: '질 좋은 수면은 신체와 정신을 회복시켜 다음 날 활력을 되찾게 합니다.'
+                },
+                {
+                    icon: '🌙',
+                    title: '건강한 생활',
+                    description: '충분한 수면은 면역력 강화, 기억력 향상, 체중 조절에 도움을 줍니다.'
+                }
+            ]
+        };
+
+        // 실험별 루틴 데이터 정의
+        const experimentRoutines = {
+            'morning': {
+                name: '아침형 인간으로 살아보기',
+                duration: 7,
+                routines: [
+                    { title: '06:00 기상', category: 'habits', startTime: '06:00', endTime: '', days: ['월','화','수','목','금','토','일'] },
+                    { title: '아침 스트레칭 10분', category: 'recovery', startTime: '06:10', endTime: '06:20', days: ['월','화','수','목','금','토','일'] },
+                    { title: '건강한 아침 식사', category: 'nutrition', startTime: '07:00', endTime: '07:30', days: ['월','화','수','목','금','토','일'] },
+                    { title: '아침 산책 20분', category: 'exercise', startTime: '07:30', endTime: '07:50', days: ['월','화','수','목','금','토','일'] },
+                    { title: '22:00 취침', category: 'habits', startTime: '22:00', endTime: '', days: ['월','화','수','목','금','토','일'] }
+                ]
+            },
+            'vegan': {
+                name: '비건으로 살아보기',
+                duration: 7,
+                routines: [
+                    { title: '식물성 아침 식사', category: 'nutrition', startTime: '08:00', endTime: '08:30', days: ['월','화','수','목','금','토','일'] },
+                    { title: '식물성 점심 식사', category: 'nutrition', startTime: '12:00', endTime: '12:30', days: ['월','화','수','목','금','토','일'] },
+                    { title: '식물성 저녁 식사', category: 'nutrition', startTime: '19:00', endTime: '19:30', days: ['월','화','수','목','금','토','일'] },
+                    { title: '비타민 B12 영양제 섭취', category: 'nutrition', startTime: '20:00', endTime: '', days: ['월','화','수','목','금','토','일'] }
+                ]
+            },
+            'digital-detox': {
+                name: '디지털 디톡스 실천하기',
+                duration: 3,
+                routines: [
+                    { title: '20:00 이후 스마트폰 끄기', category: 'habits', startTime: '20:00', endTime: '', days: ['월','화','수','목','금','토','일'] },
+                    { title: '독서 30분', category: 'habits', startTime: '20:30', endTime: '21:00', days: ['월','화','수','목','금','토','일'] },
+                    { title: '일기 쓰기', category: 'habits', startTime: '21:30', endTime: '21:45', days: ['월','화','수','목','금','토','일'] }
+                ]
+            },
+            'daily-exercise': {
+                name: '매일 운동하는 사람 되기',
+                duration: 14,
+                routines: [
+                    { title: '아침 러닝 30분', category: 'exercise', startTime: '06:00', endTime: '06:30', days: ['월','화','수','목','금','토','일'] },
+                    { title: '근력 운동 20분', category: 'exercise', startTime: '18:00', endTime: '18:20', days: ['월','수','금'] },
+                    { title: '저녁 스트레칭 15분', category: 'recovery', startTime: '21:00', endTime: '21:15', days: ['월','화','수','목','금','토','일'] }
+                ]
+            },
+            'sleep': {
+                name: '수면 최적화 프로젝트',
+                duration: 7,
+                routines: [
+                    { title: '22:30 취침 준비', category: 'recovery', startTime: '22:30', endTime: '', days: ['월','화','수','목','금','토','일'] },
+                    { title: '명상 10분', category: 'recovery', startTime: '22:00', endTime: '22:10', days: ['월','화','수','목','금','토','일'] },
+                    { title: '스마트폰 끄기', category: 'habits', startTime: '22:15', endTime: '', days: ['월','화','수','목','금','토','일'] },
+                    { title: '07:00 기상', category: 'habits', startTime: '07:00', endTime: '', days: ['월','화','수','목','금','토','일'] },
+                    { title: '아침 햇빛 쬐기 15분', category: 'recovery', startTime: '07:10', endTime: '07:25', days: ['월','화','수','목','금','토','일'] }
+                ]
+            }
+        };
+
+        let currentOnboardingStep = 0;
+        let currentExperimentId = '';
+        let onboardingSteps = [];
+
+        // 필터링 함수
+        function filterCategory(category) {
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            const cards = document.querySelectorAll('.experiment-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // 정렬 함수
+        function sortBy(type) {
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            const experimentList = document.getElementById('experimentList');
+            const cards = Array.from(document.querySelectorAll('.experiment-card:not(.hidden)'));
+            
+            cards.sort((a, b) => {
+                if (type === 'popular') {
+                    return parseInt(b.dataset.popularity) - parseInt(a.dataset.popularity);
+                } else {
+                    return parseInt(b.dataset.completion) - parseInt(a.dataset.completion);
+                }
+            });
+
+            // 재정렬
+            cards.forEach(card => {
+                experimentList.appendChild(card);
+            });
+        }
+
+        // 탭 전환
+        const tabs = document.querySelectorAll('.tab-btn');
+        const experimentList = document.getElementById('experimentList');
+
+        function switchTab(index) {
+            tabs.forEach(t => t.classList.remove('active'));
+            tabs[index].classList.add('active');
+
+            if (index === 1) {
+                showInProgressExperiments();
+            } else if (index === 2) {
+                showCompletedExperiments();
+            } else {
+                location.reload();
+            }
+        }
+
+        function showInProgressExperiments() {
+            const activeExperiments = JSON.parse(localStorage.getItem('activeExperiments') || '[]');
+            
+            if (activeExperiments.length === 0) {
+                experimentList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚗️</div>
+                        <div class="empty-text">
+                            진행중인 실험이 없어요<br>
+                            새로운 실험을 시작해보세요!
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            experimentList.innerHTML = activeExperiments.map(exp => {
+                const progress = Math.round((exp.currentDay / exp.duration) * 100);
+                return `
+                    <div class="experiment-card">
+                        <div class="experiment-header">
+                            <div class="experiment-icon">${getExperimentIcon(exp.id)}</div>
+                            <div class="experiment-info">
+                                <span class="experiment-category">${getExperimentCategory(exp.id)}</span>
+                                <div class="experiment-title">${exp.name}</div>
+                                <div class="experiment-duration">진행 중: ${exp.currentDay}일차/${exp.duration}일</div>
+                            </div>
+                        </div>
+                        
+                        <div class="experiment-description">
+                            순조롭게 진행중이에요! 이대로만 하면 성공할 수 있어요 💪
+                        </div>
+
+                        <div style="background: #f5f5f5; border-radius: 8px; height: 8px; margin-bottom: 16px;">
+                            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); height: 100%; width: ${progress}%; border-radius: 8px;"></div>
+                        </div>
+
+                        <button class="experiment-btn secondary" onclick="window.location.href='routine.html'">진행상황 보기</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showCompletedExperiments() {
+            const completedExperiments = JSON.parse(localStorage.getItem('completedExperiments') || '[]');
+            
+            if (completedExperiments.length === 0) {
+                experimentList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🏆</div>
+                        <div class="empty-text">
+                            아직 완료한 실험이 없어요<br>
+                            첫 실험을 시작해보세요!
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            experimentList.innerHTML = completedExperiments.map(exp => `
+                <div class="experiment-card completed">
+                    <div class="experiment-header">
+                        <div class="experiment-icon">${getExperimentIcon(exp.id)}</div>
+                        <div class="experiment-info">
+                            <span class="experiment-category">${getExperimentCategory(exp.id)}</span>
+                            <div class="experiment-title">${exp.name}</div>
+                            <div class="experiment-duration">완료: ${exp.completedDate}</div>
+                        </div>
+                        <span class="success-badge">✓ 성공</span>
+                    </div>
+                    
+                    <div class="experiment-description">
+                        축하해요! ${exp.duration}일간의 실험을 성공적으로 마쳤어요 🎉
+                    </div>
+
+                    <div class="experiment-stats">
+                        <div class="stat-item">✅ 100% 완료</div>
+                        <div class="stat-item">🔥 ${exp.duration}일 연속</div>
+                    </div>
+
+                    <button class="experiment-btn secondary">결과 보기</button>
+                </div>
+            `).join('');
+        }
+
+        function getExperimentIcon(id) {
+            const icons = {
+                'morning': '🌅',
+                'vegan': '🌱',
+                'digital-detox': '📵',
+                'daily-exercise': '💪',
+                'sleep': '🧘'
+            };
+            return icons[id] || '⚗️';
+        }
+
+        function getExperimentCategory(id) {
+            const categories = {
+                'morning': '습관 개선',
+                'vegan': '영양섭취',
+                'digital-detox': '습관 개선',
+                'daily-exercise': '운동',
+                'sleep': '회복/컨디셔닝'
+            };
+            return categories[id] || '기타';
+        }
+
+        // 실험 시작 - 온보딩 표시
+        function startExperiment(name, id) {
+            currentExperimentId = id;
+            onboardingSteps = onboardingData[id] || [];
+            currentOnboardingStep = 0;
+            
+            if (onboardingSteps.length > 0) {
+                updateOnboardingStep();
+                document.getElementById('onboardingModal').classList.add('active');
+            } else {
+                addChallengeToRoutine();
+            }
+        }
+
+        // 온보딩 단계 업데이트
+        function updateOnboardingStep() {
+            const step = onboardingSteps[currentOnboardingStep];
+            const progress = ((currentOnboardingStep + 1) / onboardingSteps.length) * 100;
+            
+            document.getElementById('onboardingProgress').style.width = progress + '%';
+            document.getElementById('onboardingStep').innerHTML = `
+                <div class="onboarding-image">${step.icon}</div>
+                <h2 class="onboarding-title">${step.title}</h2>
+                <p class="onboarding-description">${step.description}</p>
+            `;
+
+            const actionBtn = document.querySelector('.onboarding-btn');
+            if (currentOnboardingStep === onboardingSteps.length - 1) {
+                actionBtn.textContent = '내 루틴에 챌린지 추가하기';
+                actionBtn.onclick = addChallengeToRoutine;
+            } else {
+                actionBtn.textContent = '다음';
+                actionBtn.onclick = nextOnboardingStep;
+            }
+        }
+
+        // 다음 온보딩 단계
+        function nextOnboardingStep() {
+            if (currentOnboardingStep < onboardingSteps.length - 1) {
+                currentOnboardingStep++;
+                updateOnboardingStep();
+            }
+        }
+
+        // 온보딩 건너뛰기
+        function skipOnboarding() {
+            addChallengeToRoutine();
+        }
+
+        // 온보딩 닫기
+        function closeOnboarding() {
+            document.getElementById('onboardingModal').classList.remove('active');
+        }
+
+        // 챌린지를 루틴에 추가
+        function addChallengeToRoutine() {
+            closeOnboarding();
+            
+            const experiment = experimentRoutines[currentExperimentId];
+            if (!experiment) {
+                alert('실험 데이터를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 실험 데이터 저장
+            const activeExperiments = JSON.parse(localStorage.getItem('activeExperiments') || '[]');
+            
+            // 이미 진행중인 실험인지 확인
+            if (activeExperiments.some(exp => exp.id === currentExperimentId)) {
+                alert('이미 진행중인 실험입니다!');
+                return;
+            }
+            
+            // 새 실험 추가
+            activeExperiments.push({
+                id: currentExperimentId,
+                name: experiment.name,
+                duration: experiment.duration,
+                currentDay: 1,
+                startDate: new Date().toISOString().split('T')[0]
+            });
+            localStorage.setItem('activeExperiments', JSON.stringify(activeExperiments));
+            
+            // 루틴 데이터 저장
+            const existingRoutines = JSON.parse(localStorage.getItem('experimentRoutines') || '[]');
+            experiment.routines.forEach(routine => {
+                existingRoutines.push({
+                    ...routine,
+                    experimentId: currentExperimentId,
+                    experimentName: experiment.name,
+                    isExperiment: true
+                });
+            });
+            localStorage.setItem('experimentRoutines', JSON.stringify(existingRoutines));
+            
+            alert('챌린지가 루틴에 추가되었습니다!');
+            window.location.href = 'routine.html';
+        }
+    </script>
+    <script src="tour-system.js"></script>
+</body>
+</html>

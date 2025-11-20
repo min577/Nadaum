@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>루틴 관리 - 나다움</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding-bottom: 70px;
+        }
+
+        .header {
+            background: white;
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .main-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 57px;
+            z-index: 99;
+        }
+
+        .main-tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 500;
+            color: #999;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .main-tab.active {
+            color: #6C63FF;
+            border-bottom-color: #6C63FF;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .dashboard-section {
+            padding: 20px;
+        }
+
+        .calendar-streak {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .month-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .month-nav button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            padding: 8px 0;
+            font-weight: 500;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .calendar-day.completed {
+            background: #E8F5E9;
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .calendar-day.today {
+            border: 2px solid #6C63FF;
+        }
+
+        .calendar-day.empty {
+            color: #ddd;
+        }
+
+        .avatar-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .avatar-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .avatar-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .food-particles {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .food-particle {
+            font-size: 20px;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .food-particle:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .food-particle:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .avatar-level {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #6C63FF;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            border: 3px solid white;
+        }
+
+        .avatar-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 20px;
+        }
+
+        .avatar-stat {
+            text-align: center;
+        }
+
+        .avatar-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #6C63FF;
+            margin-bottom: 4px;
+        }
+
+        .avatar-stat-label {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6C63FF 0%, #9D8CFF 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .routine-section {
+            padding: 0;
+        }
+
+        .date-selector {
+            background: white;
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .date-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .date-nav {
+            display: flex;
+            gap: 12px;
+        }
+
+        .date-nav button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .routine-list {
+            padding: 20px;
+        }
+
+        .routine-category {
+            margin-bottom: 24px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        .category-icon {
+            font-size: 20px;
+        }
+
+        .category-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .routine-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .routine-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .routine-checkbox.checked {
+            background: #6C63FF;
+            border-color: #6C63FF;
+            position: relative;
+        }
+
+        .routine-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+        }
+
+        .routine-info {
+            flex: 1;
+        }
+
+        .routine-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .challenge-badge {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .routine-time {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .routine-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-btn {
+            padding: 6px 12px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .add-routine-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6C63FF 0%, #5A52D5 100%);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+            z-index: 50;
+        }
+
+        .ai-suggestion {
+            background: linear-gradient(135deg, #E8F5E9 0%, #F1F8FF 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .ai-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .ai-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .suggested-routines {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .suggested-routine {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .suggested-routine:hover {
+            background: #f8f9ff;
+        }
+
+        .suggested-routine.selected {
+            background: #E8F5E9;
+            border-color: #4CAF50;
+        }
+
+        .apply-btn {
+            width: 100%;
+            padding: 14px;
+            background: #6C63FF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 20px 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            color: #999;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: #6C63FF;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: flex-end;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 24px 20px 40px 20px;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-label.optional::after {
+            content: ' (선택)';
+            color: #999;
+            font-weight: 400;
+            font-size: 12px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .category-select {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .category-option {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-option.selected {
+            background: #6C63FF;
+            color: white;
+            border-color: #6C63FF;
+        }
+
+        .day-select-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .select-all-btn {
+            background: #6C63FF;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .day-select {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-option {
+            padding: 12px 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .day-option.selected {
+            background: #6C63FF;
+            color: white;
+            border-color: #6C63FF;
+        }
+
+        .time-input {
+            display: flex;
+            gap: 8px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: #6C63FF;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 24px;
+        }
+
+        .edit-action-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .edit-action-modal.active {
+            display: flex;
+        }
+
+        .edit-action-content {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 300px;
+            padding: 20px;
+        }
+
+        .edit-action-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .edit-action-btn.modify {
+            background: #6C63FF;
+            color: white;
+        }
+
+        .edit-action-btn.delete {
+            background: #f5f5f5;
+            color: #FF6B6B;
+        }
+
+        .edit-action-btn.cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>루틴 관리</h1>
+    </div>
+
+    <div class="main-tabs">
+        <button class="main-tab active" onclick="switchMainTab('dashboard')">대시보드</button>
+        <button class="main-tab" onclick="switchMainTab('routine')">오늘의 루틴</button>
+    </div>
+
+    <div id="dashboardTab" class="tab-content active">
+        <div class="dashboard-section">
+            <div class="avatar-section">
+                <h3>연속 달성 기록</h3>
+                <div class="avatar-container">
+                    <div class="avatar-image">
+                        <div class="food-particles">
+                            <span class="food-particle">🎂</span>
+                            <span class="food-particle">🥕</span>
+                            <span class="food-particle">🥗</span>
+                        </div>
+                        🌱
+                    </div>
+                    <div class="avatar-level">5</div>
+                </div>
+                <div class="avatar-stats">
+                    <div class="avatar-stat">
+                        <div class="avatar-stat-value">47</div>
+                        <div class="avatar-stat-label">완료한 루틴</div>
+                    </div>
+                    <div class="avatar-stat">
+                        <div class="avatar-stat-value">12</div>
+                        <div class="avatar-stat-label">연속 달성일</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 60%"></div>
+                </div>
+                <div class="progress-text">다음 레벨까지 20개</div>
+            </div>
+            <div class="calendar-streak">
+                <div class="calendar-header">
+                    <h3>캘린더 스트릭</h3>
+                    <div class="month-nav">
+                        <button onclick="previousMonth()">◀</button>
+                        <span id="currentMonth">2024년 11월</span>
+                        <button onclick="nextMonth()">▶</button>
+                    </div>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-day-header">일</div>
+                    <div class="calendar-day-header">월</div>
+                    <div class="calendar-day-header">화</div>
+                    <div class="calendar-day-header">수</div>
+                    <div class="calendar-day-header">목</div>
+                    <div class="calendar-day-header">금</div>
+                    <div class="calendar-day-header">토</div>
+                </div>
+                <div class="calendar-grid" id="calendarDays"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="routineTab" class="tab-content">
+        <div class="routine-section">
+            <div class="date-selector">
+                <div class="date-display">
+                    <span>📅</span>
+                    <span id="selectedDate">2024년 11월 21일 (목)</span>
+                </div>
+                <div class="date-nav">
+                    <button onclick="previousDay()">◀</button>
+                    <button onclick="nextDay()">▶</button>
+                </div>
+            </div>
+            <div class="ai-suggestion">
+                <div class="ai-header">
+                    <span>✨</span>
+                    <span class="ai-title">Nadaum의 추천</span>
+                </div>
+                <div class="ai-description">
+                    회원님의 루틴 패턴을 분석한 결과, 아래 루틴을 추가하면 목표 달성에 도움이 될 것 같아요!
+                </div>
+                <div class="suggested-routines">
+                    <div class="suggested-routine" data-routine='{"name":"저녁 명상 10분","category":"recovery","startTime":"22:00","endTime":"22:10","days":["일","월","화","수","목","금","토"]}' onclick="toggleSuggestedRoutine(this)">
+                        🧘 저녁 명상 10분 (오후 10:00)
+                    </div>
+                    <div class="suggested-routine" data-routine='{"name":"취침 전 독서 20분","category":"habit","startTime":"22:30","endTime":"22:50","days":["일","월","화","수","목","금","토"]}' onclick="toggleSuggestedRoutine(this)">
+                        📖 취침 전 독서 20분 (오후 10:30)
+                    </div>
+                </div>
+                <button class="apply-btn" onclick="applyRecommendations()">선택한 루틴 추가하기</button>
+            </div>
+
+            <div class="routine-list" id="routineList">
+                <div class="routine-category" data-category="exercise">
+                    <div class="category-header">
+                        <span class="category-icon">🏃</span>
+                        <span class="category-title">운동</span>
+                    </div>
+                    <div class="routine-item" data-id="routine-1">
+                        <div class="routine-checkbox checked" onclick="toggleRoutine(this)"></div>
+                        <div class="routine-info">
+                            <div class="routine-name">
+                                아침 조깅 30분
+                                <span class="challenge-badge">챌린지</span>
+                            </div>
+                            <div class="routine-time">오전 7:00 - 7:30</div>
+                        </div>
+                        <button class="edit-btn" onclick="showEditActions('routine-1')">편집</button>
+                    </div>
+                    <div class="routine-item" data-id="routine-2">
+                        <div class="routine-checkbox" onclick="toggleRoutine(this)"></div>
+                        <div class="routine-info">
+                            <div class="routine-name">플랭크 2분</div>
+                            <div class="routine-time">오후 8:00 - 8:02</div>
+                        </div>
+                        <button class="edit-btn" onclick="showEditActions('routine-2')">편집</button>
+                    </div>
+                </div>
+
+                <div class="routine-category" data-category="nutrition">
+                    <div class="category-header">
+                        <span class="category-icon">🥗</span>
+                        <span class="category-title">식단</span>
+                    </div>
+                    <div class="routine-item" data-id="routine-3">
+                        <div class="routine-checkbox" onclick="toggleRoutine(this)"></div>
+                        <div class="routine-info">
+                            <div class="routine-name">물 2L 마시기</div>
+                            <div class="routine-time">하루종일</div>
+                        </div>
+                        <button class="edit-btn" onclick="showEditActions('routine-3')">편집</button>
+                    </div>
+                </div>
+
+                <div class="routine-category" data-category="body">
+                    <div class="category-header">
+                        <span class="category-icon">💆</span>
+                        <span class="category-title">바디케어</span>
+                    </div>
+                    <div class="routine-item" data-id="routine-4">
+                        <div class="routine-checkbox checked" onclick="toggleRoutine(this)"></div>
+                        <div class="routine-info">
+                            <div class="routine-name">스트레칭 10분</div>
+                            <div class="routine-time">오후 9:00 - 9:10</div>
+                        </div>
+                        <button class="edit-btn" onclick="showEditActions('routine-4')">편집</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="add-routine-btn" onclick="openAddModal()">+</button>
+
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">루틴 추가하기</h2>
+                <button class="close-btn" onclick="closeAddModal()">×</button>
+            </div>
+
+            <form id="routineForm" onsubmit="saveRoutine(event)">
+                <input type="hidden" id="routineId">
+                
+                <div class="form-group">
+                    <label class="form-label">루틴 이름</label>
+                    <input type="text" id="routineName" class="form-input" placeholder="예: 아침 조깅" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">카테고리</label>
+                    <div class="category-select" id="categorySelect">
+                        <div class="category-option" data-category="exercise" onclick="selectCategory(this)">🏃 운동</div>
+                        <div class="category-option" data-category="nutrition" onclick="selectCategory(this)">🥗 식단</div>
+                        <div class="category-option" data-category="body" onclick="selectCategory(this)">💆 바디케어</div>
+                        <div class="category-option" data-category="recovery" onclick="selectCategory(this)">😴 회복/컨디셔닝</div>
+                        <div class="category-option" data-category="habit" onclick="selectCategory(this)">✨ 습관 개선</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="day-select-header">
+                        <label class="form-label">요일 선택</label>
+                        <button type="button" class="select-all-btn" onclick="selectAllDays()">전체 선택</button>
+                    </div>
+                    <div class="day-select" id="daySelect">
+                        <div class="day-option" data-day="일" onclick="selectDay(this)">일</div>
+                        <div class="day-option" data-day="월" onclick="selectDay(this)">월</div>
+                        <div class="day-option" data-day="화" onclick="selectDay(this)">화</div>
+                        <div class="day-option" data-day="수" onclick="selectDay(this)">수</div>
+                        <div class="day-option" data-day="목" onclick="selectDay(this)">목</div>
+                        <div class="day-option" data-day="금" onclick="selectDay(this)">금</div>
+                        <div class="day-option" data-day="토" onclick="selectDay(this)">토</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label optional">시작 시간</label>
+                    <div class="time-input">
+                        <input type="time" id="startTime" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label optional">종료 시간</label>
+                    <div class="time-input">
+                        <input type="time" id="endTime" class="form-input">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">추가하기</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="edit-action-modal" id="editActionModal">
+        <div class="edit-action-content">
+            <button class="edit-action-btn modify" onclick="modifyRoutine()">수정하기</button>
+            <button class="edit-action-btn delete" onclick="deleteRoutine()">삭제하기</button>
+            <button class="edit-action-btn cancel" onclick="closeEditActions()">취소</button>
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <a href="feed.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>피드</span>
+        </a>
+        <a href="routine.html" class="nav-item active">
+            <span class="nav-icon">📋</span>
+            <span>루틴</span>
+        </a>
+        <a href="persona_lab.html" class="nav-item">
+            <span class="nav-icon">🔬</span>
+            <span>챌린지</span>
+        </a>
+        <a href="mypage.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>MY</span>
+        </a>
+    </nav>
+
+<script>
+    // 루틴 데이터 저장소
+    let routines = [
+        {
+            id: 'routine-1',
+            name: '아침 조깅 30분',
+            category: 'exercise',
+            startTime: '07:00',
+            endTime: '07:30',
+            days: ['월', '화', '수', '목', '금'],
+            isChallenge: true
+        },
+        {
+            id: 'routine-2',
+            name: '플랭크 2분',
+            category: 'exercise',
+            startTime: '20:00',
+            endTime: '20:02',
+            days: ['월', '수', '금']
+        },
+        {
+            id: 'routine-3',
+            name: '물 2L 마시기',
+            category: 'nutrition',
+            startTime: '',
+            endTime: '',
+            days: ['일', '월', '화', '수', '목', '금', '토']
+        },
+        {
+            id: 'routine-4',
+            name: '스트레칭 10분',
+            category: 'body',
+            startTime: '21:00',
+            endTime: '21:10',
+            days: ['일', '월', '화', '수', '목', '금', '토']
+        }
+    ];
+
+    let currentRoutineId = null;
+    let routineIdCounter = 5;
+
+    // 카테고리별 아이콘 및 이름
+    const categoryInfo = {
+        exercise: { icon: '🏃', name: '운동' },
+        nutrition: { icon: '🥗', name: '식단' },
+        body: { icon: '💆', name: '바디케어' },
+        recovery: { icon: '😴', name: '회복/컨디셔닝' },
+        habit: { icon: '✨', name: '습관 개선' }
+    };
+
+    function switchMainTab(tab) {
+        document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        if (tab === 'dashboard') {
+            document.querySelector('.main-tab:first-child').classList.add('active');
+            document.getElementById('dashboardTab').classList.add('active');
+        } else {
+            document.querySelector('.main-tab:last-child').classList.add('active');
+            document.getElementById('routineTab').classList.add('active');
+        }
+    }
+
+    function renderCalendar() {
+        const calendarDays = document.getElementById('calendarDays');
+        calendarDays.innerHTML = '';
+        
+        const year = 2024;
+        const month = 10;
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = 21;
+        
+        const completedDays = [1, 2, 4, 5, 8, 9, 11, 12, 15, 16, 18, 19];
+        
+        for (let i = 0; i < firstDay; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day empty';
+            calendarDays.appendChild(emptyDay);
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            dayElement.textContent = day;
+            
+            if (completedDays.includes(day)) {
+                dayElement.classList.add('completed');
+            }
+            if (day === today) {
+                dayElement.classList.add('today');
+            }
+            
+            calendarDays.appendChild(dayElement);
+        }
+    }
+
+    function previousMonth() {
+        console.log('이전 달');
+    }
+
+    function nextMonth() {
+        console.log('다음 달');
+    }
+
+    function previousDay() {
+        console.log('이전 날');
+    }
+
+    function nextDay() {
+        console.log('다음 날');
+    }
+
+    function toggleRoutine(element) {
+        element.classList.toggle('checked');
+    }
+
+    // AI 추천 루틴 선택/해제
+    function toggleSuggestedRoutine(element) {
+        element.classList.toggle('selected');
+    }
+
+    // AI 추천 루틴 적용
+    function applyRecommendations() {
+        const selectedRoutines = document.querySelectorAll('.suggested-routine.selected');
+        
+        if (selectedRoutines.length === 0) {
+            alert('추가할 루틴을 선택해주세요!');
+            return;
+        }
+
+        selectedRoutines.forEach(routineEl => {
+            const routineData = JSON.parse(routineEl.dataset.routine);
+            const newRoutine = {
+                id: `routine-${routineIdCounter++}`,
+                name: routineData.name,
+                category: routineData.category,
+                startTime: routineData.startTime,
+                endTime: routineData.endTime,
+                days: routineData.days
+            };
+            
+            routines.push(newRoutine);
+        });
+
+        renderRoutineList();
+        alert(`${selectedRoutines.length}개의 루틴이 추가되었습니다!`);
+        
+        // 선택 해제
+        selectedRoutines.forEach(el => el.classList.remove('selected'));
+    }
+
+    // 루틴 리스트 렌더링
+    function renderRoutineList() {
+        const routineList = document.getElementById('routineList');
+        routineList.innerHTML = '';
+
+        // 카테고리별로 그룹화
+        const groupedRoutines = {};
+        routines.forEach(routine => {
+            if (!groupedRoutines[routine.category]) {
+                groupedRoutines[routine.category] = [];
+            }
+            groupedRoutines[routine.category].push(routine);
+        });
+
+        // 각 카테고리별로 렌더링
+        Object.keys(groupedRoutines).forEach(category => {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'routine-category';
+            categoryDiv.dataset.category = category;
+
+            const info = categoryInfo[category];
+            
+            categoryDiv.innerHTML = `
+                <div class="category-header">
+                    <span class="category-icon">${info.icon}</span>
+                    <span class="category-title">${info.name}</span>
+                </div>
+            `;
+
+            groupedRoutines[category].forEach(routine => {
+                const timeDisplay = routine.startTime && routine.endTime 
+                    ? `${formatTime(routine.startTime)} - ${formatTime(routine.endTime)}`
+                    : routine.startTime 
+                    ? `${formatTime(routine.startTime)}`
+                    : '하루종일';
+
+                const routineItem = document.createElement('div');
+                routineItem.className = 'routine-item';
+                routineItem.dataset.id = routine.id;
+                routineItem.innerHTML = `
+                    <div class="routine-checkbox" onclick="toggleRoutine(this)"></div>
+                    <div class="routine-info">
+                        <div class="routine-name">
+                            ${routine.name}
+                            ${routine.isChallenge ? '<span class="challenge-badge">챌린지</span>' : ''}
+                        </div>
+                        <div class="routine-time">${timeDisplay}</div>
+                    </div>
+                    <button class="edit-btn" onclick="showEditActions('${routine.id}')">편집</button>
+                `;
+                categoryDiv.appendChild(routineItem);
+            });
+
+            routineList.appendChild(categoryDiv);
+        });
+    }
+
+    // 시간 포맷팅 함수
+    function formatTime(time) {
+        if (!time) return '';
+        const [hour, minute] = time.split(':');
+        const h = parseInt(hour);
+        const period = h >= 12 ? '오후' : '오전';
+        const displayHour = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+        return `${period} ${displayHour}:${minute}`;
+    }
+
+    function openAddModal() {
+        document.getElementById('modalTitle').textContent = '루틴 추가하기';
+        document.getElementById('submitBtn').textContent = '추가하기';
+        document.getElementById('routineForm').reset();
+        document.getElementById('routineId').value = '';
+        document.querySelectorAll('.category-option').forEach(opt => opt.classList.remove('selected'));
+        document.querySelectorAll('.day-option').forEach(opt => opt.classList.remove('selected'));
+        currentRoutineId = null;
+        document.getElementById('addModal').classList.add('active');
+    }
+
+    function closeAddModal() {
+        document.getElementById('addModal').classList.remove('active');
+    }
+
+    function selectCategory(element) {
+        document.querySelectorAll('.category-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        element.classList.add('selected');
+    }
+
+    function selectDay(element) {
+        element.classList.toggle('selected');
+    }
+
+    function selectAllDays() {
+        const dayOptions = document.querySelectorAll('.day-option');
+        const allSelected = Array.from(dayOptions).every(opt => opt.classList.contains('selected'));
+        
+        dayOptions.forEach(opt => {
+            if (allSelected) {
+                opt.classList.remove('selected');
+            } else {
+                opt.classList.add('selected');
+            }
+        });
+    }
+
+    function saveRoutine(event) {
+        event.preventDefault();
+        
+        const routineId = document.getElementById('routineId').value;
+        const name = document.getElementById('routineName').value;
+        const category = document.querySelector('.category-option.selected')?.dataset.category;
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+        const selectedDays = Array.from(document.querySelectorAll('.day-option.selected'))
+            .map(el => el.dataset.day);
+
+        if (!category) {
+            alert('카테고리를 선택해주세요!');
+            return;
+        }
+
+        if (selectedDays.length === 0) {
+            alert('요일을 선택해주세요!');
+            return;
+        }
+
+        const isEdit = routineId !== '';
+        
+        if (isEdit) {
+            // 수정
+            const routine = routines.find(r => r.id === routineId);
+            if (routine) {
+                routine.name = name;
+                routine.category = category;
+                routine.startTime = startTime;
+                routine.endTime = endTime;
+                routine.days = selectedDays;
+            }
+            alert('루틴이 수정되었습니다!');
+        } else {
+            // 추가
+            const newRoutine = {
+                id: `routine-${routineIdCounter++}`,
+                name: name,
+                category: category,
+                startTime: startTime,
+                endTime: endTime,
+                days: selectedDays
+            };
+            routines.push(newRoutine);
+            alert('루틴이 추가되었습니다!');
+        }
+        
+        renderRoutineList();
+        closeAddModal();
+    }
+
+    function showEditActions(routineId) {
+        currentRoutineId = routineId;
+        console.log('Setting currentRoutineId:', currentRoutineId); // 디버그
+        document.getElementById('editActionModal').classList.add('active');
+    }
+
+    function closeEditActions() {
+        document.getElementById('editActionModal').classList.remove('active');
+    }
+
+    function modifyRoutine() {
+        console.log('modifyRoutine called, currentRoutineId:', currentRoutineId); // 디버그
+        
+        if (!currentRoutineId) {
+            alert('루틴 ID를 찾을 수 없습니다.');
+            return;
+        }
+        
+        const routine = routines.find(r => r.id === currentRoutineId);
+        console.log('Found routine:', routine); // 디버그
+        
+        if (!routine) {
+            alert('루틴을 찾을 수 없습니다.');
+            return;
+        }
+        
+        // 편집 액션 모달 닫기
+        closeEditActions();
+        
+        // 약간의 딜레이 후 폼 모달 열기
+        setTimeout(() => {
+            // 모달 타이틀 변경
+            document.getElementById('modalTitle').textContent = '루틴 수정하기';
+            document.getElementById('submitBtn').textContent = '수정하기';
+            
+            // 폼에 기존 데이터 채우기
+            document.getElementById('routineId').value = routine.id;
+            document.getElementById('routineName').value = routine.name;
+            document.getElementById('startTime').value = routine.startTime || '';
+            document.getElementById('endTime').value = routine.endTime || '';
+            
+            // 카테고리 선택
+            document.querySelectorAll('.category-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.category === routine.category) {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            // 요일 선택
+            document.querySelectorAll('.day-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (routine.days.includes(opt.dataset.day)) {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            // 모달 열기
+            document.getElementById('addModal').classList.add('active');
+        }, 200);
+    }
+
+    function deleteRoutine() {
+        if (!currentRoutineId) return;
+        
+        if (confirm('이 루틴을 삭제하시겠습니까?')) {
+            // 배열에서 해당 루틴 삭제
+            routines = routines.filter(r => r.id !== currentRoutineId);
+            
+            // UI 업데이트
+            renderRoutineList();
+            
+            closeEditActions();
+            alert('루틴이 삭제되었습니다.');
+        }
+    }
+
+    // 초기 렌더링
+    renderCalendar();
+    renderRoutineList();
+</script>
+    <script src="tour-system.js"></script>
+</body>
+</html>

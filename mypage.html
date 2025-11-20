@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nadaum - 마이</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Settings Modal */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-modal.active {
+            display: flex;
+        }
+
+        .settings-content {
+            background-color: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .settings-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .settings-menu {
+            padding: 8px 0;
+        }
+
+        .settings-item {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .settings-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .settings-item-text {
+            font-size: 16px;
+        }
+
+        .settings-item-badge {
+            background-color: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            padding: 20px;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .profile-photo {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .profile-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .profile-image:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-edit-icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            border: 3px solid white;
+        }
+
+        .profile-info-box {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-bio {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .profile-edit-btn {
+            padding: 8px 16px;
+            background-color: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .profile-edit-btn:hover {
+            background-color: #e8e8e8;
+        }
+
+        /* Avatar Dashboard */
+        .avatar-dashboard {
+            padding: 32px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .avatar-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+        }
+
+        .avatar-main {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .avatar-main:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar-level {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .avatar-status {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .avatar-message {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .progress-title {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Category Stats */
+        .category-stats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 4px;
+            filter: grayscale(50%);
+            opacity: 0.6;
+            transition: all 0.3s;
+        }
+
+        .stat-item.active .stat-icon {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-count {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Avatar Info Card */
+        .avatar-info-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-top: 16px;
+            font-size: 12px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* User Info */
+        .user-info {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-item {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .info-number {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #999;
+        }
+
+        /* Tab Section */
+        .tab-section {
+            display: flex;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 16px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: #999;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #333;
+            border-bottom-color: #333;
+        }
+
+        /* Content Section */
+        .content-section {
+            flex: 1;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        /* My Posts (Feed Style) - Default View */
+        .posts-feed {
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .post-card {
+            background-color: white;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            gap: 12px;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ddd;
+        }
+
+        .post-info {
+            flex: 1;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 10px;
+            border-radius: 10px;
+        }
+
+        .post-meta {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .post-image {
+            width: 100%;
+            height: 300px;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .post-content {
+            padding: 12px 20px;
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: #f0f0f0;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .post-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .save-count {
+            font-size: 12px;
+            color: #999;
+            padding: 8px 20px;
+        }
+
+        /* Saved Routines List */
+        .routine-list {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .routine-item {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .routine-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .routine-icon {
+            font-size: 48px;
+            flex-shrink: 0;
+        }
+
+        .routine-info {
+            flex: 1;
+        }
+
+        .routine-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .routine-category {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .routine-stats {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+            margin-top: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: #333;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">마이페이지</div>
+            <button class="icon-btn" onclick="openSettings()">⚙️</button>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="settings-modal" id="settingsModal">
+            <div class="settings-content">
+                <div class="settings-header">
+                    <div class="settings-title">설정</div>
+                    <button class="close-btn" onclick="closeSettings()">✕</button>
+                </div>
+                <div class="settings-menu">
+                    <div class="settings-item" onclick="verifyExpert()">
+                        <span class="settings-item-text">전문가 인증</span>
+                        <span class="settings-item-badge">NEW</span>
+                    </div>
+                    <div class="settings-item">
+                        <span class="settings-item-text">계정 설정</span>
+                    </div>
+                    <div class="settings-item">
+                        <span class="settings-item-text">알림 설정</span>
+                    </div>
+                    <div class="settings-item">
+                        <span class="settings-item-text">개인정보 설정</span>
+                    </div>
+                    <div class="settings-item">
+                        <span class="settings-item-text">고객센터</span>
+                    </div>
+                    <div class="settings-item">
+                        <span class="settings-item-text">로그아웃</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <div class="profile-header">
+                <div class="profile-photo">
+                    <div class="profile-image" onclick="editProfile()">
+                        김
+                    </div>
+                    <div class="profile-edit-icon" onclick="editProfile()">✏️</div>
+                </div>
+                <div class="profile-info-box">
+                    <div class="profile-name">김밈모</div>
+                    <div class="profile-bio">
+                        건강한 루틴으로 더 나은 나를 만들어가고 있어요 💪
+                    </div>
+                </div>
+            </div>
+            <button class="profile-edit-btn" onclick="editProfile()">프로필 편집</button>
+            <!-- User Info -->
+        <div class="user-info">
+            <div class="info-item">
+                <div class="info-number">3</div>
+                <div class="info-label">게시물</div>
+            </div>
+            <div class="info-item">
+                <div class="info-number">8</div>
+                <div class="info-label">저장한 루틴</div>
+            </div>
+            <div class="info-item">
+                <div class="info-number">13.1k</div>
+                <div class="info-label">팔로워</div>
+            </div>
+            <div class="info-item">
+                <div class="info-number">567</div>
+                <div class="info-label">팔로잉</div>
+            </div>
+        </div>
+        </div>
+
+
+
+
+        <!-- Tab Section -->
+        <div class="tab-section">
+            <button class="tab-btn active" data-tab="posts">내 게시물</button>
+            <button class="tab-btn" data-tab="saved">저장한 루틴</button>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content-section">
+            <!-- My Posts (Default View) -->
+            <div class="posts-feed" id="myPosts">
+                <!-- Post Card 1 -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="profile-pic"></div>
+                        <div class="post-info">
+                            <div class="username">김밈모</div>
+                            <div class="post-meta">운동 · 2시간 전</div>
+                        </div>
+                    </div>
+                    <div class="post-image">📸 운동 인증 사진</div>
+                    <div class="post-content">
+                        <span class="category-tag">#근력운동</span>
+                        <p class="post-text">오늘도 데드리프트 5세트 완료! 💪 처음 시작할 때보다 10kg 늘었어요. 꾸준히 하니까 정말 달라지네요.</p>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn">❤️ 128</button>
+                        <button class="action-btn">💬 12</button>
+                        <button class="action-btn">📋 저장</button>
+                    </div>
+                    <div class="save-count">234명이 이 루틴을 저장했어요</div>
+                </div>
+
+                <!-- Post Card 2 -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="profile-pic"></div>
+                        <div class="post-info">
+                            <div class="username">김밈모</div>
+                            <div class="post-meta">영양섭취 · 1일 전</div>
+                        </div>
+                    </div>
+                    <div class="post-image">📸 식단 사진</div>
+                    <div class="post-content">
+                        <span class="category-tag">#건강식단</span>
+                        <p class="post-text">오늘의 점심 도시락 🍱 단백질과 채소를 충분히 넣었어요. 맛있게 먹고 오후 업무도 화이팅!</p>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn">❤️ 89</button>
+                        <button class="action-btn">💬 8</button>
+                        <button class="action-btn">📋 저장</button>
+                    </div>
+                    <div class="save-count">156명이 이 루틴을 저장했어요</div>
+                </div>
+
+                <!-- Post Card 3 -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="profile-pic"></div>
+                        <div class="post-info">
+                            <div class="username">김밈모</div>
+                            <div class="post-meta">회복/컨디셔닝 · 3일 전</div>
+                        </div>
+                    </div>
+                    <div class="post-image">📸 스트레칭 사진</div>
+                    <div class="post-content">
+                        <span class="category-tag">#저녁스트레칭</span>
+                        <p class="post-text">하루를 마무리하는 저녁 스트레칭 🧘 몸도 마음도 편안해지는 시간이에요.</p>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn">❤️ 342</button>
+                        <button class="action-btn">💬 28</button>
+                        <button class="action-btn">📋 저장</button>
+                    </div>
+                    <div class="save-count">892명이 이 루틴을 저장했어요</div>
+                </div>
+            </div>
+
+            <!-- Saved Routines -->
+            <div class="routine-list" id="savedRoutines">
+                <div class="routine-item">
+                    <div class="routine-icon">🏃</div>
+                    <div class="routine-info">
+                        <div class="routine-title">아침 러닝 30분</div>
+                        <div class="routine-category">운동</div>
+                        <div class="routine-stats">⭐ 892명이 저장</div>
+                    </div>
+                </div>
+
+                <div class="routine-item">
+                    <div class="routine-icon">🥗</div>
+                    <div class="routine-info">
+                        <div class="routine-title">비건 식단</div>
+                        <div class="routine-category">영양섭취</div>
+                        <div class="routine-stats">⭐ 1,234명이 저장</div>
+                    </div>
+                </div>
+
+                <div class="routine-item">
+                    <div class="routine-icon">🧘</div>
+                    <div class="routine-info">
+                        <div class="routine-title">저녁 스트레칭</div>
+                        <div class="routine-category">회복/컨디셔닝</div>
+                        <div class="routine-stats">⭐ 2,341명이 저장</div>
+                    </div>
+                </div>
+
+                <div class="routine-item">
+                    <div class="routine-icon">💪</div>
+                    <div class="routine-info">
+                        <div class="routine-title">데드리프트 루틴</div>
+                        <div class="routine-category">운동</div>
+                        <div class="routine-stats">⭐ 567명이 저장</div>
+                    </div>
+                </div>
+
+                <div class="routine-item">
+                    <div class="routine-icon">🌅</div>
+                    <div class="routine-info">
+                        <div class="routine-title">아침 명상 10분</div>
+                        <div class="routine-category">회복/컨디셔닝</div>
+                        <div class="routine-stats">⭐ 1,890명이 저장</div>
+                    </div>
+                </div>
+
+                <div class="routine-item">
+                    <div class="routine-icon">📵</div>
+                    <div class="routine-info">
+                        <div class="routine-title">디지털 디톡스</div>
+                        <div class="routine-category">습관 개선</div>
+                        <div class="routine-stats">⭐ 3,127명이 저장</div>
+                    </div>
+                </div>
+
+                <div class="routine-item">
+                    <div class="routine-icon">✨</div>
+                    <div class="routine-info">
+                        <div class="routine-title">저녁 스킨케어</div>
+                        <div class="routine-category">바디케어</div>
+                        <div class="routine-stats">⭐ 4,562명이 저장</div>
+                    </div>
+                </div>
+
+                <div class="routine-item">
+                    <div class="routine-icon">💧</div>
+                    <div class="routine-info">
+                        <div class="routine-title">물 2L 마시기</div>
+                        <div class="routine-category">영양섭취</div>
+                        <div class="routine-stats">⭐ 2,789명이 저장</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a href="feed.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span>홈</span>
+            </a>
+            <a href="routine.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span>루틴관리</span>
+            </a>
+            <a href="persona-lab.html" class="nav-item">
+                <span class="nav-icon">⚗️</span>
+                <span>실험실</span>
+            </a>
+            <a href="mypage.html" class="nav-item active">
+                <span class="nav-icon">👤</span>
+                <span>마이</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Avatar System
+        const avatarData = {
+            totalRoutines: 25,
+            currentLevel: 3,
+            levels: [
+                { min: 0, max: 19, emoji: '🥚', name: '알', nextEmoji: '🐣' },
+                { min: 20, max: 39, emoji: '🐣', name: '병아리', nextEmoji: '🐥' },
+                { min: 40, max: 79, emoji: '🐥', name: '큰 병아리', nextEmoji: '🦅' },
+                { min: 80, max: Infinity, emoji: '🦅', name: '독수리', nextEmoji: '🦅' }
+            ],
+            categoryEmojis: {
+                '운동': '💪',
+                '영양섭취': '🥗',
+                '바디케어': '✨',
+                '회복': '🧘',
+                '습관개선': '🚫'
+            },
+            lastCategory: null
+        };
+
+        // Initialize avatar
+        function initializeAvatar() {
+            updateAvatarDisplay();
+            updateProgress();
+        }
+
+        // Update avatar display based on total routines
+        function updateAvatarDisplay() {
+            const level = avatarData.levels.find(l => 
+                avatarData.totalRoutines >= l.min && avatarData.totalRoutines <= l.max
+            );
+            
+            if (level) {
+                document.getElementById('avatarDisplay').textContent = level.emoji;
+                document.getElementById('avatarLevel').textContent = avatarData.currentLevel;
+                document.getElementById('avatarStatus').textContent = `${level.name} 레벨 ${avatarData.currentLevel}`;
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const nextMilestone = avatarData.currentLevel === 1 ? 20 : 
+                                 avatarData.currentLevel === 2 ? 40 : 
+                                 avatarData.currentLevel === 3 ? 80 : 160;
+            
+            const prevMilestone = avatarData.currentLevel === 1 ? 0 : 
+                                 avatarData.currentLevel === 2 ? 20 : 
+                                 avatarData.currentLevel === 3 ? 40 : 80;
+            
+            const progress = ((avatarData.totalRoutines - prevMilestone) / (nextMilestone - prevMilestone)) * 100;
+            const remaining = nextMilestone - avatarData.totalRoutines;
+            
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentRoutines').textContent = `${avatarData.totalRoutines}개 루틴 완료`;
+            document.getElementById('nextLevelRoutines').textContent = `${nextMilestone}개까지 ${remaining}개 남음`;
+        }
+
+        // Change avatar based on category click
+        function changeAvatarCategory(element) {
+            const category = element.dataset.category;
+            const emoji = element.dataset.emoji;
+            
+            // Temporarily change avatar to category emoji
+            const avatarDisplay = document.getElementById('avatarDisplay');
+            const originalEmoji = avatarDisplay.textContent;
+            
+            avatarDisplay.style.transform = 'scale(0.8) rotate(10deg)';
+            
+            setTimeout(() => {
+                avatarDisplay.textContent = emoji;
+                avatarDisplay.style.transform = 'scale(1.1) rotate(-10deg)';
+                
+                setTimeout(() => {
+                    avatarDisplay.style.transform = 'scale(1) rotate(0deg)';
+                }, 300);
+            }, 200);
+            
+            // Revert back to base avatar after 2 seconds
+            setTimeout(() => {
+                avatarDisplay.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    avatarDisplay.textContent = originalEmoji;
+                    avatarDisplay.style.transform = 'scale(1)';
+                }, 200);
+            }, 2000);
+            
+            // Show message
+            const message = document.getElementById('avatarMessage');
+            const originalMessage = message.innerHTML;
+            message.innerHTML = `${category} 카테고리의 루틴을 완료하면<br>아바타가 ${emoji}로 변해요!`;
+            
+            setTimeout(() => {
+                message.innerHTML = originalMessage;
+            }, 2000);
+        }
+
+        // Edit profile function
+        function editProfile() {
+            alert('프로필 편집 페이지로 이동합니다.\n\n프로필 사진, 이름, 소개글을 수정할 수 있습니다.');
+        }
+
+        // Tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const myPosts = document.getElementById('myPosts');
+        const savedRoutines = document.getElementById('savedRoutines');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const tab = this.dataset.tab;
+                if (tab === 'posts') {
+                    myPosts.style.display = 'block';
+                    savedRoutines.style.display = 'none';
+                } else if (tab === 'saved') {
+                    myPosts.style.display = 'none';
+                    savedRoutines.style.display = 'flex';
+                }
+            });
+        });
+
+        // Settings modal functions
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function verifyExpert() {
+            alert('전문가 인증 페이지로 이동합니다.\n\n자격증, 경력 등을 인증하시면 "전문가" 배지를 받으실 수 있습니다.');
+            closeSettings();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('settingsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSettings();
+            }
+        });
+
+        // Routine item click
+        document.querySelectorAll('.routine-item').forEach(item => {
+            item.addEventListener('click', function() {
+                alert('루틴 상세 정보를 보여줍니다');
+            });
+        });
+
+        // Initialize on page load
+        initializeAvatar();
+    </script>
+    <script src="tour-system.js"></script>
+</body>
+</html>

@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nadaum - Feed</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-bottom: 70px;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            background-color: white;
+        }
+
+        .time {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2B4A9F;
+        }
+
+        .search-bar {
+            flex: 1;
+            margin: 0 16px;
+            padding: 10px 16px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            font-size: 15px;
+            border: none;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .routine-summary {
+            background: linear-gradient(135deg, #E8F5E9 0%, #F1F8FF 100%);
+            padding: 16px 20px;
+            margin: 0;
+        }
+
+        .routine-summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .routine-summary-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .routine-summary-stats {
+            font-size: 18px;
+            font-weight: 700;
+            color: #6C63FF;
+        }
+
+        .routine-summary-message {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .share-feed-btn {
+            width: 100%;
+            padding: 12px;
+            background: #6C63FF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 65px;
+            z-index: 99;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 16px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #999;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #333;
+            border-bottom-color: #333;
+            font-weight: 600;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            padding: 16px 20px 12px;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 118px;
+            z-index: 98;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+        }
+
+        .category-filters::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .category-filters::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .category-filters::-webkit-scrollbar-thumb {
+            background: #d0d0d0;
+            border-radius: 10px;
+        }
+
+        .category-filters::-webkit-scrollbar-thumb:hover {
+            background: #b0b0b0;
+        }
+
+        .filter-chip {
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .filter-chip.active {
+            background-color: #333;
+            color: white;
+        }
+
+        .additional-filters {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .gender-filter {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .gender-filter:hover {
+            color: #333;
+        }
+
+        .expert-filter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .expert-filter input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #7B3FF2;
+        }
+
+        .expert-filter label {
+            cursor: pointer;
+        }
+
+        /* Feed Content */
+        .feed-content {
+            flex: 1;
+            overflow-y: auto;
+            background-color: white;
+        }
+
+        .post-card {
+            background-color: white;
+            margin-bottom: 2px;
+            border-bottom: 8px solid #f5f5f5;
+        }
+
+        .post-card.hidden {
+            display: none;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            gap: 12px;
+        }
+
+        .profile-pic {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .post-info {
+            flex: 1;
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: #7B3FF2;
+            color: white;
+            font-size: 11px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .post-meta {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .follow-btn {
+            padding: 7px 16px;
+            background-color: #2B4A9F;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .follow-btn.following {
+            background-color: white;
+            color: #2B4A9F;
+            border: 1px solid #2B4A9F;
+        }
+
+        .more-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            color: #666;
+        }
+
+        /* Image Carousel */
+        .image-carousel {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .carousel-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .carousel-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-image {
+            min-width: 100%;
+            height: 400px;
+            object-fit: cover;
+            scroll-snap-align: start;
+            background-color: #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            color: #999;
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+
+        .indicator-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s;
+        }
+
+        .indicator-dot.active {
+            background-color: white;
+            width: 20px;
+            border-radius: 3px;
+        }
+
+        /* Post Actions */
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 16px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-icon {
+            font-size: 22px;
+        }
+
+        /* Post Content */
+        .post-content {
+            padding: 0 16px 12px;
+        }
+
+        .routine-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .category-tag {
+            padding: 6px 12px;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .arrow-icon {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .routine-save-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background-color: #E53935;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .routine-save-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Comments */
+        .comments-section {
+            padding: 0 16px 16px;
+        }
+
+        .comments-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .comment {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            flex-shrink: 0;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .comment-text {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 12px;
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            z-index: 101;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: #999;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active {
+            color: #333;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        /* Gender Filter Modal */
+        .gender-modal {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background-color: white;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            z-index: 200;
+            animation: slideUp 0.3s ease;
+        }
+
+        .gender-modal.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(100%);
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-option {
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .modal-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .modal-option.selected {
+            background-color: #f0f0ff;
+            color: #2B4A9F;
+            font-weight: 600;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 199;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="time">10:02</div>
+            <div class="status-icons">
+                <span>📶</span>
+                <span>📡</span>
+                <span>🔋 77%</span>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">Nadaum</div>
+            <input type="text" class="search-bar" placeholder="검색">
+            <div class="header-icons">
+                <button class="icon-btn">🔍</button>
+                <button class="icon-btn">🔔</button>
+            </div>
+        </div>
+        <div class="header">
+    
+    </div>
+
+    <div class="routine-summary">
+        <div class="routine-summary-header">
+            <span class="routine-summary-title">📅 오늘의 루틴</span>
+            <span class="routine-summary-stats">3 / 5 완료</span>
+        </div>
+        <p class="routine-summary-message">
+            오늘의 루틴을 완료한 모습을 피드에 공유해 주세요!
+        </p>
+        <button class="share-feed-btn">
+            <span>✨</span>
+            <span>피드 공유하기</span>
+        </button>
+    </div>
+    
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active">취향</button>
+            <button class="tab-btn">트렌드</button>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="category-filters">
+                <button class="filter-chip active" data-category="all">전체</button>
+                <button class="filter-chip" data-category="운동">운동</button>
+                <button class="filter-chip" data-category="영양섭취">영양섭취</button>
+                <button class="filter-chip" data-category="바디케어">바디케어</button>
+                <button class="filter-chip" data-category="회복/컨디셔닝">회복/컨디셔닝</button>
+                <button class="filter-chip" data-category="습관 개선">습관 개선</button>
+            </div>
+            <div class="additional-filters">
+                <div class="gender-filter" id="genderFilter">
+                    <span id="genderText">여성</span>
+                    <span>▼</span>
+                </div>
+                <div class="expert-filter">
+                    <input type="checkbox" id="expertCheck" checked>
+                    <label for="expertCheck">전문가</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feed Content -->
+        <div class="feed-content">
+            <!-- Post Card 1 - 여성, 전문가, 운동 -->
+            <div class="post-card" data-gender="여성" data-expert="true" data-category="운동">
+                <div class="post-header">
+                    <div class="profile-pic">👩</div>
+                    <div class="post-info">
+                        <div class="user-row">
+                            <span class="username">김헬린</span>
+                            <span class="badge">전문가</span>
+                        </div>
+                        <div class="post-meta">강남 헬스장 | 2시간 전</div>
+                    </div>
+                    <button class="follow-btn">팔로우</button>
+                    <button class="more-btn">⋮</button>
+                </div>
+
+                <div class="image-carousel">
+                    <div class="carousel-container">
+                        <div class="carousel-image">💪 운동 사진</div>
+                        <div class="carousel-image">🏋️ 운동 사진 2</div>
+                    </div>
+                    <div class="carousel-indicators">
+                        <div class="indicator-dot active"></div>
+                        <div class="indicator-dot"></div>
+                    </div>
+                </div>
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn">
+                        <span class="action-icon">🤍</span>
+                        <span class="like-count">163</span>
+                    </button>
+                    <button class="action-btn">
+                        <span class="action-icon">💬</span>
+                        <span>14</span>
+                    </button>
+                </div>
+
+                <div class="post-content">
+                    <div class="routine-section">
+                        <span class="category-tag">운동</span>
+                        <span class="arrow-icon">〉</span>
+                        <button class="routine-save-btn">
+                            <span>오후 근력운동 완료하기</span>
+                            <span>🔖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-title">댓글</div>
+                    <div class="comment">
+                        <div class="comment-avatar"></div>
+                        <div class="comment-content">
+                            <div class="comment-author">운동러버</div>
+                            <div class="comment-text">저도 오늘 같은 루틴 했어요! 💪</div>
+                        </div>
+                    </div>
+                    <div class="comment">
+                        <div class="comment-avatar"></div>
+                        <div class="comment-content">
+                            <div class="comment-author">헬스초보</div>
+                            <div class="comment-text">어떤 중량으로 하셨나요?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Card 2 - 여성, 비전문가, 운동 -->
+            <div class="post-card" data-gender="여성" data-expert="false" data-category="운동">
+                <div class="post-header">
+                    <div class="profile-pic">👩</div>
+                    <div class="post-info">
+                        <div class="user-row">
+                            <span class="username">운동초보자</span>
+                        </div>
+                        <div class="post-meta">동네 헬스장 | 1시간 전</div>
+                    </div>
+                    <button class="follow-btn">팔로우</button>
+                    <button class="more-btn">⋮</button>
+                </div>
+
+                <div class="image-carousel">
+                    <div class="carousel-container">
+                        <div class="carousel-image">🏃‍♀️ 런닝머신</div>
+                    </div>
+                </div>
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn">
+                        <span class="action-icon">🤍</span>
+                        <span class="like-count">45</span>
+                    </button>
+                    <button class="action-btn">
+                        <span class="action-icon">💬</span>
+                        <span>5</span>
+                    </button>
+                </div>
+
+                <div class="post-content">
+                    <div class="routine-section">
+                        <span class="category-tag">운동</span>
+                        <span class="arrow-icon">〉</span>
+                        <button class="routine-save-btn">
+                            <span>아침 러닝 30분</span>
+                            <span>🔖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-title">댓글</div>
+                    <div class="comment">
+                        <div class="comment-avatar"></div>
+                        <div class="comment-content">
+                            <div class="comment-author">응원단</div>
+                            <div class="comment-text">꾸준히 하시는 모습 멋져요! 💪</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Card 3 - 남성, 비전문가, 영양섭취 -->
+            <div class="post-card" data-gender="남성" data-expert="false" data-category="영양섭취">
+                <div class="post-header">
+                    <div class="profile-pic">👨</div>
+                    <div class="post-info">
+                        <div class="user-row">
+                            <span class="username">건강한생활</span>
+                        </div>
+                        <div class="post-meta">집 | 3시간 전</div>
+                    </div>
+                    <button class="follow-btn">팔로우</button>
+                    <button class="more-btn">⋮</button>
+                </div>
+
+                <div class="image-carousel">
+                    <div class="carousel-container">
+                        <div class="carousel-image">🥗 식단 사진</div>
+                    </div>
+                </div>
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn">
+                        <span class="action-icon">🤍</span>
+                        <span class="like-count">89</span>
+                    </button>
+                    <button class="action-btn">
+                        <span class="action-icon">💬</span>
+                        <span>8</span>
+                    </button>
+                </div>
+
+                <div class="post-content">
+                    <div class="routine-section">
+                        <span class="category-tag">영양섭취</span>
+                        <span class="arrow-icon">〉</span>
+                        <button class="routine-save-btn">
+                            <span>비건 식단 따라하기</span>
+                            <span>🔖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-title">댓글</div>
+                    <div class="comment">
+                        <div class="comment-avatar"></div>
+                        <div class="comment-content">
+                            <div class="comment-author">영양사박</div>
+                            <div class="comment-text">균형잡힌 식단이네요! 👍</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Card 4 - 여성, 비전문가, 회복/컨디셔닝 -->
+            <div class="post-card" data-gender="여성" data-expert="false" data-category="회복/컨디셔닝">
+                <div class="post-header">
+                    <div class="profile-pic">👩</div>
+                    <div class="post-info">
+                        <div class="user-row">
+                            <span class="username">요가러버</span>
+                        </div>
+                        <div class="post-meta">집 | 4시간 전</div>
+                    </div>
+                    <button class="follow-btn">팔로우</button>
+                    <button class="more-btn">⋮</button>
+                </div>
+
+                <div class="image-carousel">
+                    <div class="carousel-container">
+                        <div class="carousel-image">🧘‍♀️ 요가</div>
+                    </div>
+                </div>
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn">
+                        <span class="action-icon">🤍</span>
+                        <span class="like-count">67</span>
+                    </button>
+                    <button class="action-btn">
+                        <span class="action-icon">💬</span>
+                        <span>7</span>
+                    </button>
+                </div>
+
+                <div class="post-content">
+                    <div class="routine-section">
+                        <span class="category-tag">회복/컨디셔닝</span>
+                        <span class="arrow-icon">〉</span>
+                        <button class="routine-save-btn">
+                            <span>저녁 요가 20분</span>
+                            <span>🔖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-title">댓글</div>
+                    <div class="comment">
+                        <div class="comment-avatar"></div>
+                        <div class="comment-content">
+                            <div class="comment-author">힐링중</div>
+                            <div class="comment-text">저도 저녁에 요가하면 잠이 잘 와요 😊</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Card 5 - 여성, 전문가, 회복/컨디셔닝 -->
+            <div class="post-card" data-gender="여성" data-expert="true" data-category="회복/컨디셔닝">
+                <div class="post-header">
+                    <div class="profile-pic">👩</div>
+                    <div class="post-info">
+                        <div class="user-row">
+                            <span class="username">박피지오</span>
+                            <span class="badge">전문가</span>
+                        </div>
+                        <div class="post-meta">물리치료센터 | 1일 전</div>
+                    </div>
+                    <button class="follow-btn">팔로우</button>
+                    <button class="more-btn">⋮</button>
+                </div>
+
+                <div class="image-carousel">
+                    <div class="carousel-container">
+                        <div class="carousel-image">🧘 스트레칭</div>
+                    </div>
+                </div>
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn">
+                        <span class="action-icon">🤍</span>
+                        <span class="like-count">342</span>
+                    </button>
+                    <button class="action-btn">
+                        <span class="action-icon">💬</span>
+                        <span>28</span>
+                    </button>
+                </div>
+
+                <div class="post-content">
+                    <div class="routine-section">
+                        <span class="category-tag">회복/컨디셔닝</span>
+                        <span class="arrow-icon">〉</span>
+                        <button class="routine-save-btn">
+                            <span>아침 스트레칭 10분</span>
+                            <span>🔖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-title">댓글</div>
+                    <div class="comment">
+                        <div class="comment-avatar"></div>
+                        <div class="comment-content">
+                            <div class="comment-author">직장인A</div>
+                            <div class="comment-text">매일 따라하고 있어요! 목 결림이 많이 좋아졌어요</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Card 6 - 남성, 비전문가, 바디케어 -->
+            <div class="post-card" data-gender="남성" data-expert="false" data-category="바디케어">
+                <div class="post-header">
+                    <div class="profile-pic">👨</div>
+                    <div class="post-info">
+                        <div class="user-row">
+                            <span class="username">그루밍남</span>
+                        </div>
+                        <div class="post-meta">화장실 | 6시간 전</div>
+                    </div>
+                    <button class="follow-btn">팔로우</button>
+                    <button class="more-btn">⋮</button>
+                </div>
+
+                <div class="image-carousel">
+                    <div class="carousel-container">
+                        <div class="carousel-image">🧴 스킨케어 제품</div>
+                    </div>
+                </div>
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn">
+                        <span class="action-icon">🤍</span>
+                        <span class="like-count">92</span>
+                    </button>
+                    <button class="action-btn">
+                        <span class="action-icon">💬</span>
+                        <span>11</span>
+                    </button>
+                </div>
+
+                <div class="post-content">
+                    <div class="routine-section">
+                        <span class="category-tag">바디케어</span>
+                        <span class="arrow-icon">〉</span>
+                        <button class="routine-save-btn">
+                            <span>아침 세안 루틴</span>
+                            <span>🔖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-title">댓글</div>
+                    <div class="comment">
+                        <div class="comment-avatar"></div>
+                        <div class="comment-content">
+                            <div class="comment-author">남자피부고민</div>
+                            <div class="comment-text">어떤 제품 쓰시나요?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Card 7 - 남성, 전문가, 바디케어 -->
+            <div class="post-card" data-gender="남성" data-expert="true" data-category="바디케어">
+                <div class="post-header">
+                    <div class="profile-pic">👨</div>
+                    <div class="post-info">
+                        <div class="user-row">
+                            <span class="username">스킨케어전문가</span>
+                            <span class="badge">전문가</span>
+                        </div>
+                        <div class="post-meta">피부과 | 5시간 전</div>
+                    </div>
+                    <button class="follow-btn">팔로우</button>
+                    <button class="more-btn">⋮</button>
+                </div>
+
+                <div class="image-carousel">
+                    <div class="carousel-container">
+                        <div class="carousel-image">✨ 스킨케어</div>
+                    </div>
+                </div>
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn">
+                        <span class="action-icon">🤍</span>
+                        <span class="like-count">215</span>
+                    </button>
+                    <button class="action-btn">
+                        <span class="action-icon">💬</span>
+                        <span>19</span>
+                    </button>
+                </div>
+
+                <div class="post-content">
+                    <div class="routine-section">
+                        <span class="category-tag">바디케어</span>
+                        <span class="arrow-icon">〉</span>
+                        <button class="routine-save-btn">
+                            <span>저녁 스킨케어 루틴</span>
+                            <span>🔖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-title">댓글</div>
+                    <div class="comment">
+                        <div class="comment-avatar"></div>
+                        <div class="comment-content">
+                            <div class="comment-author">피부고민러</div>
+                            <div class="comment-text">이 루틴 따라한지 2주됐는데 피부가 좋아졌어요!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Card 8 - 남성, 비전문가, 습관 개선 -->
+            <div class="post-card" data-gender="남성" data-expert="false" data-category="습관 개선">
+                <div class="post-header">
+                    <div class="profile-pic">👨</div>
+                    <div class="post-info">
+                        <div class="user-row">
+                            <span class="username">금연도전중</span>
+                        </div>
+                        <div class="post-meta">카페 | 2시간 전</div>
+                    </div>
+                    <button class="follow-btn">팔로우</button>
+                    <button class="more-btn">⋮</button>
+                </div>
+
+                <div class="image-carousel">
+                    <div class="carousel-container">
+                        <div class="carousel-image">🚭 금연 14일차</div>
+                    </div>
+                </div>
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn">
+                        <span class="action-icon">🤍</span>
+                        <span class="like-count">128</span>
+                    </button>
+                    <button class="action-btn">
+                        <span class="action-icon">💬</span>
+                        <span>15</span>
+                    </button>
+                </div>
+
+                <div class="post-content">
+                    <div class="routine-section">
+                        <span class="category-tag">습관 개선</span>
+                        <span class="arrow-icon">〉</span>
+                        <button class="routine-save-btn">
+                            <span>금연 2주 챌린지</span>
+                            <span>🔖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-title">댓글</div>
+                    <div class="comment">
+                        <div class="comment-avatar"></div>
+                        <div class="comment-content">
+                            <div class="comment-author">금연성공자</div>
+                            <div class="comment-text">저도 처음엔 힘들었는데 이제 1년됐어요! 화이팅!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Card 9 - 여성, 비전문가, 습관 개선 -->
+            <div class="post-card" data-gender="여성" data-expert="false" data-category="습관 개선">
+                <div class="post-header">
+                    <div class="profile-pic">👩</div>
+                    <div class="post-info">
+                        <div class="user-row">
+                            <span class="username">디지털디톡스중</span>
+                        </div>
+                        <div class="post-meta">카페 | 1일 전</div>
+                    </div>
+                    <button class="follow-btn">팔로우</button>
+                    <button class="more-btn">⋮</button>
+                </div>
+
+                <div class="image-carousel">
+                    <div class="carousel-container">
+                        <div class="carousel-image">📵 디지털 디톡스</div>
+                    </div>
+                </div>
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn">
+                        <span class="action-icon">🤍</span>
+                        <span class="like-count">156</span>
+                    </button>
+                    <button class="action-btn">
+                        <span class="action-icon">💬</span>
+                        <span>12</span>
+                    </button>
+                </div>
+
+                <div class="post-content">
+                    <div class="routine-section">
+                        <span class="category-tag">습관 개선</span>
+                        <span class="arrow-icon">〉</span>
+                        <button class="routine-save-btn">
+                            <span>저녁 9시 이후 스마트폰 끄기</span>
+                            <span>🔖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-title">댓글</div>
+                    <div class="comment">
+                        <div class="comment-avatar"></div>
+                        <div class="comment-content">
+                            <div class="comment-author">불면증탈출</div>
+                            <div class="comment-text">저도 시작했는데 수면의 질이 정말 좋아졌어요</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span>Home</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span>루틴관리</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">⚗️</span>
+                <span>실험실</span>
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span>My</span>
+            </div>
+        </div>
+
+        <!-- Gender Filter Modal -->
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="gender-modal" id="genderModal">
+            <div class="modal-header">성별 필터</div>
+            <div class="modal-option selected" data-gender="여성">여성</div>
+            <div class="modal-option" data-gender="남성">남성</div>
+            <div class="modal-option" data-gender="전체">전체</div>
+        </div>
+    </div>
+
+    <script>
+        let currentGender = '여성';
+        let currentCategory = 'all';
+        let showExpertOnly = true;
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Category filter
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                currentCategory = this.dataset.category;
+                filterPosts();
+            });
+        });
+
+        // Gender filter modal
+        const genderFilter = document.getElementById('genderFilter');
+        const genderModal = document.getElementById('genderModal');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const genderText = document.getElementById('genderText');
+
+        genderFilter.addEventListener('click', () => {
+            genderModal.classList.add('active');
+            modalOverlay.classList.add('active');
+        });
+
+        modalOverlay.addEventListener('click', () => {
+            genderModal.classList.remove('active');
+            modalOverlay.classList.remove('active');
+        });
+
+        document.querySelectorAll('.modal-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.modal-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                currentGender = this.dataset.gender;
+                genderText.textContent = currentGender;
+                genderModal.classList.remove('active');
+                modalOverlay.classList.remove('active');
+                filterPosts();
+            });
+        });
+
+        // Expert filter
+        document.getElementById('expertCheck').addEventListener('change', function() {
+            showExpertOnly = this.checked;
+            filterPosts();
+        });
+
+        // Filter posts function
+        function filterPosts() {
+            const posts = document.querySelectorAll('.post-card');
+            
+            posts.forEach(post => {
+                const postGender = post.dataset.gender;
+                const postExpert = post.dataset.expert === 'true';
+                const postCategory = post.dataset.category;
+
+                let showPost = true;
+
+                // Gender filter
+                if (currentGender !== '전체' && postGender !== currentGender) {
+                    showPost = false;
+                }
+
+                // Expert filter
+                if (showExpertOnly && !postExpert) {
+                    showPost = false;
+                }
+
+                // Category filter
+                if (currentCategory !== 'all' && postCategory !== currentCategory) {
+                    showPost = false;
+                }
+
+                if (showPost) {
+                    post.classList.remove('hidden');
+                } else {
+                    post.classList.add('hidden');
+                }
+            });
+        }
+
+        // Carousel functionality
+        document.querySelectorAll('.carousel-container').forEach(carousel => {
+            carousel.addEventListener('scroll', function() {
+                const scrollLeft = this.scrollLeft;
+                const width = this.offsetWidth;
+                const activeIndex = Math.round(scrollLeft / width);
+                
+                const indicators = this.parentElement.querySelectorAll('.indicator-dot');
+                indicators.forEach((dot, index) => {
+                    if (index === activeIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Like button toggle
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = this.querySelector('.action-icon');
+                const count = this.querySelector('.like-count');
+                
+                if (icon.textContent === '🤍') {
+                    icon.textContent = '❤️';
+                    count.textContent = parseInt(count.textContent) + 1;
+                } else {
+                    icon.textContent = '🤍';
+                    count.textContent = parseInt(count.textContent) - 1;
+                }
+            });
+        });
+
+        // Follow button toggle
+        document.querySelectorAll('.follow-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent === '팔로우') {
+                    this.textContent = '팔로잉';
+                    this.classList.add('following');
+                } else {
+                    this.textContent = '팔로우';
+                    this.classList.remove('following');
+                }
+            });
+        });
+
+        // Routine save button
+        document.querySelectorAll('.routine-save-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const routineName = this.querySelector('span:first-child').textContent;
+                alert(`"${routineName}" 루틴이 저장되었습니다!`);
+            });
+        });
+
+        // Initialize filter
+        filterPosts();
+    </script>
+    <script src="tour-system.js"></script>
+</body>
+</html>
